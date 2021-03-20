@@ -1,0 +1,70 @@
+body {
+    font: 13px/20px 'Lucida Grande', Tahoma, Verdana, sans-serif;
+    color: #4045040;
+    background-color: whitesmoke;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    height: 100%;
+}
+
+input[type="file"] {
+    position: absolute;
+    top: 30px;
+    left: 10px;
+}
+
+.custom-file-upload {
+    cursor: pointer;
+}
+
+.upload-container {
+    padding: 7% 0 20px 0;
+}
+
+.upload {
+    position: relative;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 50px;
+    width: 280px;
+    background: white;
+    border: 1px solid gray;
+}
+
+.upload > h1 {
+    text-align: center;
+    margin: -20px -21px 20px;
+    line-height: 40px;
+    font-size: 15px;
+    font-weight: bold;
+    color: black;
+    background: steelblue;
+}
+
+.upload > form {
+    min-height: 30px;
+}
+
+.upload > form > input[type=submit] {
+    float: right;
+    cursor: pointer;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.file-details-container {
+    display: none;
+}
+
+.file-details {
+    background: white;
+    width: 280px;
+    margin: 0 auto;
+    padding: 8px 20px;
+    max-height: 24px;
+    overflow-y: hidden;
+}
