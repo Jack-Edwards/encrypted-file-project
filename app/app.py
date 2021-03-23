@@ -67,12 +67,16 @@ def file_upload():
                             file_created=file.created)
 
 
-@app.route('/file/download', methods=['GET'])
+@app.route('/file/download', methods=['POST'])
 def file_download():
-    file_id = request.args.get('file_id')
+    file_id = request.form.get('fileId')
     file = File.query.filter_by(id=file_id).first()
-    file_path = os.path.join(config['PATH']['FILES'], file.id)
-    send_file(file_path, as_attachment=True)
+    file_directory = os.path.join(config['PATH']['FILES'], file.id)
+    for found in os.listdir(file_directory):
+        file_path = os.path.join(file_directory, found)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            print(file_path)
+            return send_file(file_path, as_attachment=True)
 
 
 if __name__ == '__main__':

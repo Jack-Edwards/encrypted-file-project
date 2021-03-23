@@ -1,0 +1,81 @@
+.flexbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-items: start;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.bg-dark {
+    background-color: #272822;
+}
+
+.fg-light {
+    color: #cccccc;
+}
+
+.border-light {
+    border-radius: 4px;
+    border-color: #cccccc;
+    border-style: solid;
+}
+
+.font {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.margin-5 {
+    margin: 5px;
+}
+
+.adjust-label-position {
+    padding-top: 12px;
+    margin-right: 2px;
+}
+
+.padding-5 {
+    padding: 5px;
+}
+
+.center-text {
+    text-align: center;
+}
+
+.left-text {
+    text-align: left;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.hide {
+    display: none;
+}
+
+.width-min {
+    width: min-content;
+}
+
+.width-fill {
+    width: 100%;
+}
+
+.overflow {
+    overflow: auto;
+}
