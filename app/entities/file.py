@@ -12,10 +12,12 @@ from __main__ import db
 class File(db.Model):
     id: str
     name: str
+    iv: str
     created: datetime
 
     id = db.Column(db.String, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    iv = db.Column(db.String, nullable=False)
     created = db.Column(db.String, nullable=False, default=str(datetime.utcnow()))
 
     def __init__(self, name):

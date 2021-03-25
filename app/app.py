@@ -3,15 +3,15 @@ from flask import Flask, \
     request, \
     redirect, \
     url_for, \
-    send_file, \
-    jsonify
+    send_file
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from pathlib import Path
 import os
-
-import settings
-import util
+from io import BytesIO
+from modules import settings, util
+from modules.crypto import SymmetricCrypto
+from base64 import b64encode, b64decode
 
 # Load settings
 this_file = Path(__file__)
@@ -32,8 +32,12 @@ db = SQLAlchemy(app)
 from entities import File
 
 
-#  Create the DB file
+# Create the DB file
 db.create_all()
+
+
+# Global crypto key
+crypto_key = b'is sixteen bytes'
 
 
 @app.route('/', methods=['GET'])
@@ -44,39 +48,45 @@ def index():
 @app.route('/file/upload', methods=['POST'])
 def file_upload():
     file_from_request = request.files['file']
-    safe_filename = secure_filename(file_from_request.filename)
 
+    # Filename must be safe
+    safe_filename = secure_filename(file_from_request.filename)
     if not util.is_valid_filename(safe_filename):
         return redirect(url_for('index'))
 
-    # Add the file details to the database
+    # Encrypt the file bytes
+    file_bytes = file_from_request.read()
+    crypto = SymmetricCrypto(crypto_key)
+    encrypted_bytes = crypto.encrypt(file_bytes)
+
+    # Create a database entity
     file = File(safe_filename)
+    file.iv = b64encode(crypto.iv).decode('utf-8')
     db.session.add(file)
-    try:
-        file_dir = os.path.join(config['PATH']['FILES'], file.id)
-        os.mkdir(file_dir)
-        file_from_request.save(os.path.join(file_dir, safe_filename))
-    except:
-        db.session.delete(file)
-    finally:
-        db.session.commit()
+    db.session.commit()
+
+    # Make a directory for the file
+    file_dir = os.path.join(config['PATH']['FILES'], file.id)
+    os.mkdir(file_dir)
+
+    with open(os.path.join(file_dir, safe_filename), 'wb') as f:
+        f.write(encrypted_bytes)
 
     return render_template('fileDetails.html',
                             file_id=file.id,
-                            file_name=file.name,
-                            file_created=file.created)
+                            decrypt_key=crypto_key)
 
 
 @app.route('/file/download', methods=['POST'])
 def file_download():
     file_id = request.form.get('fileId')
     file = File.query.filter_by(id=file_id).first()
-    file_directory = os.path.join(config['PATH']['FILES'], file.id)
-    for found in os.listdir(file_directory):
-        file_path = os.path.join(file_directory, found)
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            print(file_path)
-            return send_file(file_path, as_attachment=True)
+    file_path = os.path.join(config['PATH']['FILES'], file.id, file.name)
+    with open(file_path, 'rb') as f:
+        crypto = SymmetricCrypto(crypto_key, b64decode(file.iv))
+        decrypted_bytes = crypto.decrypt(f.read())
+        return_bytes = BytesIO(decrypted_bytes)
+        return send_file(return_bytes, as_attachment=True, attachment_filename=file.name)
 
 
 if __name__ == '__main__':
