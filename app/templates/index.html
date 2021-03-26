@@ -13,8 +13,17 @@
                 <h2>Upload</h2>
                 <div>
                     <form id='upload' method=post action='/file/upload' enctype=multipart/form-data>
-                        <input id="fileUpload" class="float-left" type="file" name="file"/>
+                        <input id="fileUpload" type="file" name="files"/>
                         <div style="clear: both;"></div>
+
+                        <label class="float-left adjust-label-position" for="key">Encrypt Key</label>
+                        <input class="float-right" type="text" name="key"/>
+                        <div style="clear: both;"></div>
+
+                        <label class="float-left" for="clientSide">Client-Side Encryption</label>
+                        <input disabled=disabled class="outline-light" type="checkbox" name="clientSide">
+                        <div style="clear: both;"></div>
+
                         <input class="float-right" type=submit value=Upload>
                     </form>
                 </div>
@@ -32,8 +41,16 @@
                         <input class="float-right" type="text" name="fileId"/>
                         <div style="clear: both;"></div>
 
-                        <label class="float-left adjust-label-position" for="decryptKey">Decrypt Key</label>
-                        <input class="float-right" type="text" name="decryptKey"/>
+                        <label class="float-left adjust-label-position" for="key">Decrypt Key</label>
+                        <input class="float-right" type="text" name="key"/>
+                        <div style="clear: both;"></div>
+
+                        <label class="float-left adjust-label-position" for="iv">Decrypt IV</label>
+                        <input class="float-right" type="text" name="iv"/>
+                        <div style="clear: both;"></div>
+
+                        <label class="float-left" for="clientSide">Client-Side Decryption</label>
+                        <input disabled=disabled class="outline-light" type="checkbox" name="clientSide">
                         <div style="clear: both;"></div>
 
                         <input class="float-right" type=submit value=Download>

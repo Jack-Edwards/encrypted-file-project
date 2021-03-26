@@ -36,10 +36,6 @@ from entities import File
 db.create_all()
 
 
-# Global crypto key
-crypto_key = b'is sixteen bytes'
-
-
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -47,7 +43,8 @@ def index():
 
 @app.route('/file/upload', methods=['POST'])
 def file_upload():
-    file_from_request = request.files['file']
+    file_from_request = request.files['files']
+    key = request.form.get('key')
 
     # Filename must be safe
     safe_filename = secure_filename(file_from_request.filename)
@@ -56,12 +53,11 @@ def file_upload():
 
     # Encrypt the file bytes
     file_bytes = file_from_request.read()
-    crypto = SymmetricCrypto(crypto_key)
+    crypto = SymmetricCrypto(key.encode())
     encrypted_bytes = crypto.encrypt(file_bytes)
 
     # Create a database entity
     file = File(safe_filename)
-    file.iv = b64encode(crypto.iv).decode('utf-8')
     db.session.add(file)
     db.session.commit()
 
@@ -74,16 +70,19 @@ def file_upload():
 
     return render_template('fileDetails.html',
                             file_id=file.id,
-                            decrypt_key=crypto_key)
+                            decrypt_key=key,
+                            decrypt_iv=b64encode(crypto.iv).decode('utf-8'))
 
 
 @app.route('/file/download', methods=['POST'])
 def file_download():
     file_id = request.form.get('fileId')
+    decrypt_key = request.form.get('key').encode()
+    decrypt_iv = b64decode(request.form.get('iv'))
     file = File.query.filter_by(id=file_id).first()
     file_path = os.path.join(config['PATH']['FILES'], file.id, file.name)
     with open(file_path, 'rb') as f:
-        crypto = SymmetricCrypto(crypto_key, b64decode(file.iv))
+        crypto = SymmetricCrypto(decrypt_key, decrypt_iv)
         decrypted_bytes = crypto.decrypt(f.read())
         return_bytes = BytesIO(decrypted_bytes)
         return send_file(return_bytes, as_attachment=True, attachment_filename=file.name)
