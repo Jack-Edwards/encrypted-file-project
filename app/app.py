@@ -10,7 +10,7 @@ from pathlib import Path
 import os
 from io import BytesIO
 from modules import settings, util
-from modules.crypto import SymmetricCrypto
+from modules.crypto import AES_EAX
 from base64 import b64encode, b64decode
 from functools import wraps
 
@@ -63,12 +63,13 @@ def file_upload():
 
     # Encrypt the file bytes
     file_bytes = file_from_request.read()
-    crypto = SymmetricCrypto(padded_key.encode())
-    encrypted_bytes = crypto.encrypt(file_bytes)
+    crypto = AES_EAX(padded_key.encode())
+    ciphertext, tag = crypto.encrypt_and_digest(file_bytes)
 
     # Create a database entity
     file = File(safe_filename)
-    file.iv = b64encode(crypto.iv).decode('utf-8')
+    file.nonce = b64encode(crypto.nonce).decode('utf-8')
+    file.tag = b64encode(tag).decode('utf-8')
     db.session.add(file)
     db.session.commit()
 
@@ -77,7 +78,7 @@ def file_upload():
     os.mkdir(file_dir)
 
     with open(os.path.join(file_dir, safe_filename), 'wb') as f:
-        f.write(encrypted_bytes)
+        f.write(ciphertext)
 
     return render_template('fileDetails.html',
                             file_id=file.id,
@@ -95,10 +96,13 @@ def file_download():
     file_path = os.path.join(config['PATH']['FILES'], file.id, file.name)
 
     with open(file_path, 'rb') as f:
-        crypto = SymmetricCrypto(padded_key.encode(), b64decode(file.iv))
-        decrypted_bytes = crypto.decrypt(f.read())
-        return_bytes = BytesIO(decrypted_bytes)
-        return send_file(return_bytes, as_attachment=True, attachment_filename=file.name)
+        crypto = AES_EAX(padded_key.encode(), b64decode(file.nonce))
+        plaintext = crypto.decrypt_and_verify(f.read(), b64decode(file.tag))
+        if (plaintext):
+            return_bytes = BytesIO(plaintext)
+            return send_file(return_bytes, as_attachment=True, attachment_filename=file.name)
+        else:
+            return "Decrypt error"
 
 
 if __name__ == '__main__':

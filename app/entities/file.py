@@ -12,12 +12,14 @@ from __main__ import db
 class File(db.Model):
     id: str
     name: str
-    iv: str
+    nonce: str
+    tag: str
     created: datetime
 
     id = db.Column(db.String, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    iv = db.Column(db.String, nullable=False)
+    nonce = db.Column(db.String, nullable=False)
+    tag = db.Column(db.String, nullable=False)
     created = db.Column(db.String, nullable=False, default=str(datetime.utcnow()))
 
     def __init__(self, name):
