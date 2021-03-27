@@ -1,6 +1,6 @@
 from base64 import b64encode
 import os
-from flask import request, render_template, current_app
+from flask import request, render_template, current_app, jsonify
 from werkzeug.utils import secure_filename
 
 from modules import util
@@ -11,7 +11,6 @@ from entities import File
 @file_routes.route('/upload', methods=['POST'])
 def upload():
     database = current_app.config['database']
-
     file_from_request = request.files['files']
     original_key = request.form.get('key')
     padded_key = original_key.ljust(32, '=')[:32]
@@ -40,6 +39,7 @@ def upload():
     with open(os.path.join(file_dir, safe_filename), 'wb') as f:
         f.write(ciphertext)
 
-    return render_template('fileDetails.html',
-                            file_id=file.id,
-                            decrypt_key=original_key)
+    return jsonify({
+        'file_id': file.id,
+        'decrypt_key': original_key
+    })

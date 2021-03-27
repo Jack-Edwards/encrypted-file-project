@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from __main__ import db
 
 
-@dataclass
 class File(db.Model):
     id: str
     name: str

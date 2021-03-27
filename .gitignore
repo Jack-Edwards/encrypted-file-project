@@ -2,3 +2,4 @@ main.db
 files
 venv
 __pycache__
+.vscode/settings.json
