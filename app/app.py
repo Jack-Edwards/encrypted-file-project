@@ -12,6 +12,7 @@ from io import BytesIO
 from modules import settings, util
 from modules.crypto import SymmetricCrypto
 from base64 import b64encode, b64decode
+from functools import wraps
 
 # Load settings
 this_file = Path(__file__)
@@ -34,6 +35,14 @@ from entities import File
 
 # Create the DB file
 db.create_all()
+
+
+def delete_after_download(function):
+    @wraps(function)
+    def wrap_function(*args, **kwargs):
+        print('foo')
+        return function(connection, *args, **kwargs)
+    return wrap_function
 
 
 @app.route('/', methods=['GET'])
@@ -59,6 +68,7 @@ def file_upload():
 
     # Create a database entity
     file = File(safe_filename)
+    file.iv = b64encode(crypto.iv).decode('utf-8')
     db.session.add(file)
     db.session.commit()
 
@@ -71,22 +81,21 @@ def file_upload():
 
     return render_template('fileDetails.html',
                             file_id=file.id,
-                            decrypt_key=original_key,
-                            decrypt_iv=b64encode(crypto.iv).decode('utf-8'))
+                            decrypt_key=original_key)
 
 
+@delete_after_download
 @app.route('/file/download', methods=['POST'])
 def file_download():
     file_id = request.form.get('fileId')
     original_key = request.form.get('key')
     padded_key = original_key.ljust(32, '=')[:32]
-    iv = b64decode(request.form.get('iv'))
 
     file = File.query.filter_by(id=file_id).first()
     file_path = os.path.join(config['PATH']['FILES'], file.id, file.name)
 
     with open(file_path, 'rb') as f:
-        crypto = SymmetricCrypto(padded_key.encode(), iv)
+        crypto = SymmetricCrypto(padded_key.encode(), b64decode(file.iv))
         decrypted_bytes = crypto.decrypt(f.read())
         return_bytes = BytesIO(decrypted_bytes)
         return send_file(return_bytes, as_attachment=True, attachment_filename=file.name)
