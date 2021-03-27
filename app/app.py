@@ -1,5 +1,5 @@
 from pathlib import Path
-from modules import settings
+from modules import settings, disk
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -24,28 +24,19 @@ app.config['database'] = db
 
 @app.route('/', methods=['GET'])
 def index():
-    gb_allocated = float(app.config['crypter_config']['APP']['StorageLimit'])
-    
-    bytes_used = 0
-    start_path = app.config['crypter_config']['PATH']['Files']
-    for path, dirs, files in os.walk(start_path):
-        for f in files:
-            fp = os.path.join(path, f)
-            bytes_used += os.path.getsize(fp)
+    gb_allocated = int(app.config['crypter_config']['APP']['StorageLimit'])
+    storage_path = app.config['crypter_config']['PATH']['Files']
 
     bytes_allocated = gb_allocated * 1024 * 1024 * 1024
-    percent_remaining = 100 - (100 * (bytes_used / bytes_allocated))
-    bytes_remaining = bytes_allocated - bytes_used
 
-    labels = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-    label_index = 0
-    while (bytes_remaining > 1024):
-        bytes_remaining /= 1024
-        label_index += 1
+    bytes_remaining = disk.bytes_remaining_in_cloud_storage(storage_path, bytes_allocated)
+    percent_remaining = round(100 * (bytes_remaining / bytes_allocated), 0)
+
+    nice_bytes_remaining = disk.bytes_to_nice_string(bytes_remaining)
 
     return render_template('index.html',
-                            percentDiskRemaining=round(percent_remaining, 1),
-                            bytesDiskRemaining=f'{round(bytes_remaining, 2)} {labels[label_index]}',
+                            percentDiskRemaining=percent_remaining,
+                            bytesDiskRemaining=nice_bytes_remaining,
                             bytesDiskAllocated=f'{round(gb_allocated, 2)} GB')
 
 from routes import file_routes

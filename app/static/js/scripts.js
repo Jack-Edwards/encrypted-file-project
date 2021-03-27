@@ -34,9 +34,21 @@ document.addEventListener("DOMContentLoaded", function() {
           body: data
         })
         .then(response => response.json())
-        .then(data => alert("Here you go\r\n\r\nFile ID: " + data.file_id + "\r\nKey: " + keyInput.value))
+        .then(data => {
+            alert("Here you go\r\n\r\nFile ID: " + data.file_id + "\r\nKey: " + keyInput.value)
+            window.location.reload();
+        })
         .catch((error) => {
             alert('Error:', error);
         });
+    }
+
+    function window_focus(){
+        window.location.reload();
+    }
+
+    var downloadForm = document.getElementById("download");
+    downloadForm.onsubmit = function(event) {
+        window.addEventListener('focus', window_focus, false);
     }
 });
