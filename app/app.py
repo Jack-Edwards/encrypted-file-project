@@ -17,6 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['crypter_config'] = config
 
 db = SQLAlchemy(app)
+from entities import File
 db.create_all()
 app.config['database'] = db
 
