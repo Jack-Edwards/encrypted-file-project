@@ -49,9 +49,8 @@
         <div>
             <h2>Available Space</h2>
             <div id="storageBar">
-                <div style="width:{{percentDiskRemaining}}%;">
-                    <span class="storageBarText">{{ bytesDiskRemaining }} / {{ bytesDiskAllocated }}</span>
-                </div>
+                <span class="storageBarText">{{ bytesDiskRemaining }} / {{ bytesDiskAllocated }}</span>
+                <div style="width:{{percentDiskRemaining}}%;"></div>
             </div>
         </div>
     </body>

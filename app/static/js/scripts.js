@@ -35,11 +35,15 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .then(response => response.json())
         .then(data => {
-            alert("Here you go\r\n\r\nFile ID: " + data.file_id + "\r\nKey: " + keyInput.value)
+            if (data.success) {
+                alert("Here you go\r\n\r\nFile ID: " + data.file_id + "\r\nKey: " + keyInput.value);
+            } else {
+                alert(data.message);
+            }
             window.location.reload();
         })
-        .catch((error) => {
-            alert('Error:', error);
+        .catch(() => {
+            alert('Error');
         });
     }
 

@@ -101,6 +101,8 @@
 
 .storageBarText {
     margin: 0px;
-    color: #cccccc;
+    color: cornsilk;
     white-space: nowrap;
+    display: block;
+    height: 0px;
 }
