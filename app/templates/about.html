@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Crypter</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+        <script src="{{ url_for('static', filename='js/scripts.js') }}" type="text/javascript"></script>
+    </head>
+    <body class="center-text bg-dark fg-light">
+        <div class="nav">
+            <a class="link" href="/">Home</a>
+            <a class="link" href="/about">About</a>
+        </div>
+        <h1>Crypter</h1>
+        <div class="text-block">
+            <h3>About</h3>
+            <p>
+                The goal of Crypter is to provide simple, anonymous, and secure file transfer to the public.
+                Crypter does not collect your personal information or device information.  Users are not tracked whatsoever.
+            </p>
+            <p>
+                Notice this website has "https" in the URL.  That means file are uploaded to the Crypter server through a secure connection.
+                As soon as the server receives your file, it encrypts the file using the encryption key you provide.  Please use strong keys, up to 32 characters long.
+                The encrypted file remains on the server for up to 24 hours or until someone downloads the file with the correct decryption key.
+                Keys are NOT saved on the server.  Encrypted files cannot be decrypted without the key.
+            </p>
+            <p>
+                To download a file you must provide the file "ID" and a decryption key.
+                Expect an error message if the file does not exist or the decryption key could not decrypt the file.
+            </p>
+            <h3>
+                Roadmap
+            </h3>
+            <p>
+                This website is in early development.  Please send questions and feedback to jackedwards@protonmail.com.
+            </p>
+            <ul>
+                <li>
+                    Improve the user experience, based on user feedback.
+                </li>
+                <li>
+                    Fix bugs as they are reported.
+                </li>
+                <li>
+                    Add a second layer of encryption, in the browser. This will require users to keep a second key which never gets sent to the server.
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>

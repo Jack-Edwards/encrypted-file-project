@@ -19,7 +19,7 @@ class File(db.Model):
     name = db.Column(db.String, nullable=False)
     nonce = db.Column(db.String, nullable=False)
     tag = db.Column(db.String, nullable=False)
-    created = db.Column(db.String, nullable=False, default=str(datetime.utcnow()))
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, name):
         self.id = str(uuid.uuid4())
