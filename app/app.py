@@ -68,4 +68,5 @@ from routes import file_routes
 app.register_blueprint(file_routes, url_prefix='/file')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(port=port, debug=True)
