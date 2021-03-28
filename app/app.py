@@ -26,9 +26,12 @@ db.create_all()
 app.config['database'] = db
 
 def delete_stale_files():
-    files = File.query.filter(File.created + timedelta(days=1) <= datetime.utcnow()).all()
+    one_day_ago = datetime.utcnow() - timedelta(days=1)
+    files = File.query.filter(File.created <= one_day_ago).all()
     for file in files:
-        print('Deleting file: ' + file.id)
+        print(f'Deleting file: {file.id}')
+        print(f'Created: {file.created}')
+        print(f'Now: {datetime.utcnow()}')
         file_dir = os.path.join(app.config['crypter_config']['PATH']['Files'], file.id)
         try:
             shutil.rmtree(file_dir)
@@ -69,4 +72,4 @@ app.register_blueprint(file_routes, url_prefix='/file')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(port=port, debug=True)
+    app.run(port=port, debug=False)

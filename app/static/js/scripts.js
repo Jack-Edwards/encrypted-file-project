@@ -33,6 +33,13 @@ document.addEventListener("DOMContentLoaded", function() {
           method: 'POST',
           body: data
         })
+        .then(response => {
+            if (response.status === 200) {
+                return response;
+            } else {
+                throw new Error(response.statusText);
+            }
+        })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -42,8 +49,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             window.location.reload();
         })
-        .catch(() => {
-            alert('Error');
+        .catch((error) => {
+            alert(error);
         });
     }
 
