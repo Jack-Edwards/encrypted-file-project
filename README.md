@@ -19,5 +19,6 @@ Modify the `SecretKey` and `ProjectDirectory` values in `settings.ini`
 Make sure the virtual environment is activated
 > `source ../encrypted-file-project/venv/bin/activate`
 
-Run the application
-> `python3 ../encrypted-file-project/app/app.py`
+Run the application with gunicorn
+> `cd ../encrypted-file-project/app`
+> `gunicorn --bind 127.0.0.1:5000 wsgi:app`
