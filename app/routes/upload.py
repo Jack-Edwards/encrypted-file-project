@@ -1,5 +1,6 @@
 from base64 import b64encode
 import os
+import secrets
 from flask import request, render_template, current_app, jsonify
 from werkzeug.utils import secure_filename
 
@@ -16,16 +17,16 @@ def upload():
     bytes_remaining_in_cloud = disk.bytes_remaining_in_cloud_storage(storage_path, bytes_allocated)
 
     file_from_request = request.files['files']
-    database = current_app.config['database']
-    original_key = request.form.get('key')
-    padded_key = original_key.ljust(32, '=')[:32]
 
     # Filename must be safe
     safe_filename = secure_filename(file_from_request.filename)
     if not util.is_valid_filename(safe_filename):
-        return redirect(url_for('index'))
+        return jsonfiy({
+            'success': False,
+            'message': 'Invalid filename'
+        })
 
-    # Encrypt the file bytes
+    # Must have enough space to store the file on the server
     file_bytes = file_from_request.read()
     if len(file_bytes) >= bytes_remaining_in_cloud:
         return jsonify({
@@ -33,10 +34,14 @@ def upload():
             'message': 'Not enough space on server'
         })
 
-    crypto = AES_EAX(padded_key.encode())
+    # Encrypt the bytes
+    key = secrets.token_bytes(32)
+    b64_key = b64encode(key).decode('utf-8')
+    crypto = AES_EAX(key)
     ciphertext, tag = crypto.encrypt_and_digest(file_bytes)
 
     # Create a database entity
+    database = current_app.config['database']
     file = File(safe_filename)
     file.nonce = b64encode(crypto.nonce).decode('utf-8')
     file.tag = b64encode(tag).decode('utf-8')
@@ -53,5 +58,5 @@ def upload():
     return jsonify({
         'success': True,
         'file_id': file.id,
-        'decrypt_key': original_key
+        'decrypt_key': b64_key
     })

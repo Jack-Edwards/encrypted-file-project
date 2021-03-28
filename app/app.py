@@ -1,5 +1,5 @@
 from pathlib import Path
-from modules import settings, disk
+from modules import settings
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -48,27 +48,15 @@ scheduler.start()
 
 @app.route('/', methods=['GET'])
 def index():
-    gb_allocated = int(app.config['crypter_config']['APP']['StorageLimit'])
-    storage_path = app.config['crypter_config']['PATH']['Files']
-
-    bytes_allocated = gb_allocated * 1024 * 1024 * 1024
-
-    bytes_remaining = disk.bytes_remaining_in_cloud_storage(storage_path, bytes_allocated)
-    percent_remaining = round(100 * (bytes_remaining / bytes_allocated), 0)
-
-    nice_bytes_remaining = disk.bytes_to_nice_string(bytes_remaining)
-
-    return render_template('index.html',
-                            percentDiskRemaining=percent_remaining,
-                            bytesDiskRemaining=nice_bytes_remaining,
-                            bytesDiskAllocated=f'{round(gb_allocated, 2)} GB')
+    return render_template('index.html')
 
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html')
 
-from routes import file_routes
+from routes import file_routes, metrics_routes
 app.register_blueprint(file_routes, url_prefix='/file')
+app.register_blueprint(metrics_routes, url_prefix='/metrics')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

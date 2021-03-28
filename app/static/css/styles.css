@@ -80,11 +80,19 @@
     width: 100%;
 }
 
+input[type=text] {
+    width: 300px;
+}
+
+input[type=file] {
+    width: 400px;
+}
+
 .overflow {
     overflow: auto;
 }
 
-#storageBar {
+#storageBarWrapper {
     background-color: black;
     border-radius: 13px;
     padding: 3px;
@@ -92,7 +100,7 @@
     display: inline-block;
 }
 
-#storageBar>div {
+#storageBarWrapper>div {
     background-color: orange;
     /* Adjust with JavaScript */
     height: 20px;

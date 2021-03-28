@@ -20,7 +20,7 @@
             </p>
             <p>
                 Notice this website has "https" in the URL.  That means file are uploaded to the Crypter server through a secure connection.
-                As soon as the server receives your file, it encrypts the file using the encryption key you provide.  Please use strong keys, up to 32 characters long.
+                As soon as the server receives your file, it encrypts the file using a randomly generated key.  This key gets returned to the user when the upload is completed.
                 The encrypted file remains on the server for up to 24 hours or until someone downloads the file with the correct decryption key.
                 Keys are NOT saved on the server.  Encrypted files cannot be decrypted without the key.
             </p>
@@ -42,7 +42,7 @@
                     Fix bugs as they are reported.
                 </li>
                 <li>
-                    Add a second layer of encryption, in the browser. This will require users to keep a second key which never gets sent to the server.
+                    Add a layer of encryption in the browser.
                 </li>
             </ul>
         </div>

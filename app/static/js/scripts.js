@@ -1,33 +1,75 @@
+function updateStorageBar() {
+    var storageBar = document.getElementById("storageBar");
+    var storageBarText = document.getElementById("storageBarText");
+
+    fetch("/metrics/space", {
+        method: 'GET'
+      })
+      .then(response => {
+          if (response.status === 200) {
+              return response;
+          } else {
+              throw new Error(response);
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+            storageBar.style.width =  data.percent_remaining + "%";
+            storageBarText.innerText = data.bytes_remaining + " / " + data.bytes_allocated;
+          }
+      })
+      .catch((error) => {
+          console.log(error);
+      });
+}
+
+function clearUploadInput() {
+    var fileSelect = document.getElementById("fileSelect");
+    fileSelect.value = null;
+}
+
+function clearDownloadInputs() {
+    var downloadId = document.getElementById("downloadFileId");
+    var downloadKey = document.getElementById("downloadFileKey");
+    downloadId.value = "";
+    downloadKey.value = "";
+}
+
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("main.js: Document ready");
-    var fileToRead = document.getElementById("fileSelect");
-
-    fileToRead.addEventListener("change", function(event) {
-        var files = fileToRead.files;
-        var len = files.length;
-        if (len > 0) {
-            var pFileName = document.getElementById("uploadFileName");
-            pFileName.innerHTML = files[0].name;
-
-            var pFileType = document.getElementById("uploadFileType");
-            pFileType.innerHTML = files[0].type;
-
-            var pFileSize = document.getElementById("uploadFileSize");
-            pFileSize.innerHTML = files[0].size;
-        }
-
-    }, false);
-    console.log("main.js: fileToRead listener ready");
+    updateStorageBar();
+    clearUploadInput();
+    clearDownloadInputs();
 
     var uploadForm = document.getElementById("upload");
     uploadForm.onsubmit = function(event) {
         event.preventDefault();
 
+        document.getElementById("uploadButton").disabled = true;
+
+        // Clear status texts
+        var errorElement = document.getElementById("errorResponse");
+        errorElement.innerText = "";
+        var fileIdLabel = document.getElementById("uploadFileIdLabel");
+        fileIdLabel.innerText = "";
+        var fileIdElement = document.getElementById("uploadedFileId");
+        fileIdElement.innerText = "";
+        var fileKeyLabel = document.getElementById("uploadFileKeyLabel");
+        fileKeyLabel.innerText = "";
+        var fileKeyElement = document.getElementById("uploadedFileKey");
+        fileKeyElement.innerText = "";
+
         var fileSelect = document.getElementById("fileSelect");
-        var keyInput = document.getElementById("encryptKey");
+
+        // Handle no file selected
+        if (fileSelect.files.length === 0) {
+            errorElement.innerText = "No file selected";
+            document.getElementById("uploadButton").disabled = false;
+            return;
+        }
+
         var data = new FormData()
         data.append('files', fileSelect.files[0])
-        data.append('key', keyInput.value)
         
         fetch(uploadForm.action, {
           method: 'POST',
@@ -43,23 +85,35 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert("Here you go\r\n\r\nFile ID: " + data.file_id + "\r\nKey: " + keyInput.value);
+                fileIdLabel.innerText = "File ID";
+                fileIdElement.innerText = data.file_id;
+                fileKeyLabel.innerText = "Decrypt Key";
+                fileKeyElement.innerText = data.decrypt_key;
             } else {
-                alert(data.message);
+                errorElement.innerText = "Error: " + data.message;
             }
-            window.location.reload();
+
+            document.getElementById("uploadButton").disabled = false;
+            clearUploadInput();
+            updateStorageBar();
         })
         .catch((error) => {
-            alert(error);
+            errorElement.innerText = error;
+
+            document.getElementById("uploadButton").disabled = false;
+            clearUploadInput();
+            updateStorageBar();
         });
     }
 
-    function window_focus(){
-        window.location.reload();
+    function window_focus() {
+        document.getElementById("downloadButton").disabled = false;
+        updateStorageBar();
     }
 
     var downloadForm = document.getElementById("download");
     downloadForm.onsubmit = function(event) {
+        document.getElementById("downloadButton").disabled = true;
         window.addEventListener('focus', window_focus, false);
     }
 });
