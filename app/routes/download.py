@@ -14,6 +14,8 @@ def file_download():
 
     file_id = request.form.get('fileId')
     key = b64decode(request.form.get('key'))
+    if len(key) != 32:
+        return render_template('downloadError.html', reason='decrypt error')
 
     file = File.query.filter_by(id=file_id).first()
 
@@ -23,8 +25,9 @@ def file_download():
     file_dir = os.path.join(current_app.config['crypter_config']['PATH']['FILES'], file.id)
     file_path = os.path.join(file_dir, file.name)
 
+    crypto = AES_EAX(key, b64decode(file.nonce))
+
     with open(file_path, 'rb') as f:
-        crypto = AES_EAX(key, b64decode(file.nonce))
         plaintext = crypto.decrypt_and_verify(f.read(), b64decode(file.tag))
         if (plaintext):
             shutil.rmtree(file_dir)
