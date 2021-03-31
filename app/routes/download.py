@@ -13,14 +13,14 @@ def file_download():
     database = current_app.config['database']
 
     file_id = request.form.get('fileId')
-    key = b64decode(request.form.get('key'))
-    if len(key) != 32:
-        return render_template('downloadError.html', reason='decrypt error')
-
     file = File.query.filter_by(id=file_id).first()
 
     if file is None:
         return render_template('downloadError.html', reason='not found')
+
+    key = b64decode(request.form.get('key'))
+    if len(key) != 32:
+        return render_template('downloadError.html', reason='decrypt error')
 
     file_dir = os.path.join(current_app.config['crypter_config']['PATH']['FILES'], file.id)
     file_path = os.path.join(file_dir, file.name)
